@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бинго 10x10</title>
+    <style>
+body {
+    height: 100vh;
+    margin: 0;
+    background-color: black;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+.logo {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    margin-bottom: 20px;
+}   
+
+.img1 {
+    max-width: 100px;
+    margin: 0 10px;
+}
+
+.grid-background {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 950px; 
+    height: 935px; 
+    background-color: rgba(255, 255, 255, 0.1); 
+    border-radius: 20px; 
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); 
+    z-index: 0;
+    transition: all;
+}
+
+.grid {
+    margin-top: 10px;
+    margin-left: 20px;
+    display: grid;
+    grid-template-columns: repeat(8, 90px);
+    grid-template-rows: repeat(8, 90px);
+    gap: 25px;
+    z-index: 1;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+    background-color: #4a2c2c;
+    border: 2px solid #b33939;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    padding: 3px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(179, 57, 57, 0.5);
+    transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.bingo {
+    box-shadow: 0 0 50px rgba(102, 204, 102, 0.8);
+}
+
+.cell.active {
+    background-color: #b33939;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(179, 57, 57, 0.8);
+}
+
+.cell.row,
+.cell.diagonal {
+    background-color: #66cc66;
+    color: #fff;
+    border-color: #66cc66; 
+    box-shadow: 0 0 15px rgba(102, 204, 102, 0.8);
+}
+
+.cell:hover {
+    background-color: #5e3a3a;
+}
+
+.cell.active:hover {
+    background-color: rgba(179, 57, 57, 0.7);
+}
+
+.cell.row:hover,
+.cell.diagonal:hover {
+    background-color: rgba(102, 204, 102, 0.7);
+}
+
+       
+       
+        @media (hover: hover) {
+            .cell:hover {
+                background-color: #5e3a3a; 
+            }
+        
+            .cell.active:hover {
+                background-color: rgba(179, 57, 57, 0.7); 
+            }
+        
+            .cell.row:hover,
+            .cell.diagonal:hover {
+                background-color: rgba(102, 204, 102, 0.7); 
+            }
+        }
+        
+        @media (hover: none) {
+            .cell:active {
+                background-color: #5e3a3a; 
+            }
+        
+            .cell.active:active {
+                background-color: rgba(179, 57, 57, 0.7); 
+            }
+        
+            .cell.row:active,
+            .cell.diagonal:active {
+                background-color: rgba(102, 204, 102, 0.7); 
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: repeat(4, 70px); 
+                grid-template-rows: repeat(8, 70px); 
+                gap: 5px; 
+            }
+        
+            .cell {
+                width: 70px;
+                height: 70px;
+                font-size: 12px; 
+            }
+        
+            .img1 {
+                max-width: 70px; 
+            }
+        
+            .img2 {
+                width: 150px; 
+            }
+        }
+        .bingo-message {
+position: absolute;
+top:4%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    color: #66cc66; 
+    text-shadow: 0 0 20px rgba(102, 204, 102, 0.8), 0 0 30px rgba(102, 204, 102, 1);
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.bingo-message.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2); 
+}
+
+        </style>
+        
+</head>
+<body>
+    <div class="logo">
+        <img class="img1" src="https://i.imgur.com/qb1oDpY.png" alt="Логотип 1">
+    </div>
+    <div class="bingo-message" id="bingoMessage">БИНГО</div>
+
+    <div class="grid-background">  
+         <div class="grid" id="bingoGrid"></div>
+        </div>
+ 
+
+    <script>
+        const bingoData = [
+            "Син в президенты", "Свадьба Рохана и Бубена", "Рохан больше не нюня", "Спавн больше не обделяют", 
+            "Плагин на грудь", "Войсмод на бедроке", "Конфликт в первую неделю", "Злодейская арка Авава", 
+            "Монополисты: Cumback", "Да не умер Фертик в конце дельты", "Что-то идет не так", "Кольцо захватили власть", 
+            "Подрыв выборов", "Совершенно неочевидные ГГ лора", "Лор не украден", "Монополистам нечем монопо-\nлизировать", 
+            "НТС главный злодей", "Новички ахуели", "Новички не ахуели", "Первая незерка у Авава", "0 ивентов", 
+            "\"Первый сезон был лучше\"", "Цианчик умер ровно 200 раз", "Доутер крашнул сервер", "Новых лого слишком много", 
+            "Никакой нелегальщины", "Правительство забанили", "Хотя бы один наркобарон", "Чиллер все еще крут", 
+            "Диф как всегда", "Кто-то кого-то скопировал", "Тоталитарный режим существует", "Свадьба?", 
+            "Возвращение Джонни", "Привет от Гоуста", "Атвилекс в Энде", "Свадьба Джонни и Авава", 
+            "Лор = подрывание баз", "Хост умер", "У нас украли энд", "ДельтаДарк взлетел", "Досье на изгоев", 
+            "НТС забыл, кто ему кости в будку кидал", "Первый алмаз у Авава", "Фем Джонни VS Фем Авав", 
+            "Новый админ", "Нужен коддер", "Кастомные предметы", "Новое лого", "По голове Доутера в каждый дом", 
+            "Сезон не дойдет до конца", "Theta?", "У Бубена 10К", "Авав нашел девушку", "Любовный n-угольник", 
+            "Сник", "Сервер захватили фурри", "Правила появились", "Син доделала досье", "Теневые организации", 
+            "Самый богатый не Авав", "В лоре нет сюжетных дыр", "Последний сезон", "Сервер взломали"
+        ];
+
+        function createGrid() {
+    const grid = document.getElementById("bingoGrid");
+    for (let i = 0; i < bingoData.length; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+        cell.textContent = bingoData[i];
+        cell.dataset.index = i;
+        grid.appendChild(cell);
+        
+        cell.addEventListener("click", function() {
+            this.classList.toggle("active");
+            saveState(i, this.classList.contains("active"));
+            highlightWinningCells();
+        });
+    }
+}
+
+            function saveState(index, isActive) {
+                if (isActive) {
+                    localStorage.setItem(`cell-${index}`, "active");
+                } else {
+                    localStorage.removeItem(`cell-${index}`);
+                }
+            }
+
+            function highlightWinningCells() {
+    const grid = document.getElementById("bingoGrid");
+    const cells = grid.getElementsByClassName("cell");
+    const wrapper = document.getElementsByClassName("grid-background")[0];
+    const bingoMessage = document.getElementById("bingoMessage");
+    const size = 8; 
+    let isBingo = false;
+
+    for (let cell of cells) {
+        cell.classList.remove("row", "diagonal");
+    }
+
+   
+    for (let i = 0; i < size; i++) {
+        let rowActive = true;
+
+        for (let j = 0; j < size; j++) {
+            if (!cells[i * size + j].classList.contains("active")) {
+                rowActive = false;
+            }
+        }
+
+        if (rowActive) {
+            isBingo = true;
+            for (let j = 0; j < size; j++) {
+                cells[i * size + j].classList.add("row");
+            }
+        }
+    }
+
+ 
+    for (let j = 0; j < size; j++) {
+        let columnActive = true;
+
+        for (let i = 0; i < size; i++) {
+            if (!cells[i * size + j].classList.contains("active")) {
+                columnActive = false;
+            }
+        }
+
+        if (columnActive) {
+            isBingo = true;
+            for (let i = 0; i < size; i++) {
+                cells[i * size + j].classList.add("row");
+            }
+        }
+    }
+
+
+    let diagonal1Active = true;
+    for (let j = 0; j < size; j++) {
+        if (!cells[j * size + j].classList.contains("active")) {
+            diagonal1Active = false;
+        }
+    }
+
+    if (diagonal1Active) {
+        isBingo = true;
+        for (let j = 0; j < size; j++) {
+            cells[j * size + j].classList.add("diagonal");
+        }
+    }
+
+    let diagonal2Active = true;
+    for (let j = 0; j < size; j++) {
+        if (!cells[j * size + (size - 1 - j)].classList.contains("active")) {
+            diagonal2Active = false;
+        }
+    }
+
+    if (diagonal2Active) {
+        isBingo = true;
+        for (let j = 0; j < size; j++) {
+            cells[j * size + (size - 1 - j)].classList.add("diagonal");
+        }
+    }
+
+ 
+    if (isBingo) {
+        wrapper.classList.add("bingo");
+        bingoMessage.classList.add("visible");
+    } else {
+        wrapper.classList.remove("bingo");
+        bingoMessage.classList.remove("visible"); 
+    }
+}
+
+
+function restoreState() {
+    const grid = document.getElementById("bingoGrid");
+    const cells = grid.getElementsByClassName("cell");
+    for (let i = 0; i < cells.length; i++) {
+        if (localStorage.getItem(`cell-${i}`) === "active") {
+            cells[i].classList.add("active");
+        } else {
+            cells[i].classList.remove("active");
+        }
+    }
+    highlightWinningCells();
+}
+
+createGrid();
+restoreState();
+    </script>
+</body>
+</html>
